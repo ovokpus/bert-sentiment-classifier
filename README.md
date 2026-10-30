@@ -2,9 +2,9 @@
 
 **Score movie reviews as positive or negative with a BERT model, running on your laptop with a single command.**
 
-This repo started as a Vertex AI notebook that fine-tuned a TF-Hub BERT model and deployed it to a managed endpoint. It now also ships a **local app**: a FastAPI inference service and a Streamlit UI, both started with `docker compose up`.
+This repo started as a Vertex AI notebook that fine-tuned a TF-Hub BERT model and deployed it to a managed endpoint. It now also ships a **local app**: a FastAPI inference service and a React (Vite + TypeScript) app served by nginx, both started with `docker compose up`.
 
-![Results in the Streamlit UI](docs/screenshots/ui-results.png)
+![Results in the React app](docs/screenshots/web-results.png)
 
 ---
 
@@ -17,7 +17,7 @@ docker compose up --build
 
 | Service | URL |
 |---|---|
-| Streamlit UI | http://localhost:8501 |
+| React app (nginx) | http://localhost:8080 |
 | FastAPI (Swagger docs) | http://localhost:8000/docs |
 
 The first build downloads the model weights (~260 MB) into the image. Weights are never committed to git.
@@ -25,14 +25,14 @@ The first build downloads the model weights (~260 MB) into the image. Weights ar
 ## The app
 
 ### 1. Paste reviews
-One review per line. The sidebar shows the API's health and which model is loaded.
+One review per line. The badge at the top shows the API's health and which model is loaded.
 
-![UI home](docs/screenshots/ui-home.png)
+![Web home](docs/screenshots/web-home.png)
 
 ### 2. Get a verdict per review
-Each review gets a label, a confidence score, and a bar showing the positive probability.
+Each review gets a label, a confidence score, and a meter showing the positive probability, plus a positive/negative tally.
 
-![UI results](docs/screenshots/ui-results.png)
+![Web results](docs/screenshots/web-results.png)
 
 ### 3. Or call the API directly
 
@@ -54,9 +54,9 @@ curl -X POST localhost:8000/predict -H 'content-type: application/json' \
 
 ```mermaid
 flowchart LR
-    user([User]) -->|browser :8501| ui[Streamlit UI<br/>ui/]
+    user([User]) -->|browser :8080| web[nginx + React<br/>web/]
     user -->|HTTP :8000| api
-    ui -->|POST /predict<br/>GET /health| api[FastAPI service<br/>api/app]
+    web -->|/api proxy: POST /predict, GET /health| api[FastAPI service<br/>api/app]
     api --> model[[HF transformers pipeline<br/>DistilBERT SST-2]]
     hub[(Hugging Face Hub)] -. weights pulled at<br/>docker build .-> model
     subgraph Original research path
@@ -73,7 +73,7 @@ The notebook's fine-tuned TF-Hub BERT weights lived in a GCS bucket and were nev
 | Path | What it is |
 |---|---|
 | `api/` | FastAPI inference service and its Dockerfile |
-| `ui/` | Streamlit front end and its Dockerfile |
+| `web/` | React + Vite + TypeScript front end, built and served by nginx |
 | `tests/` | API tests (the model is stubbed, so they run in under a second) |
 | `scripts/screenshots.py` | Regenerates `docs/screenshots/` from the running stack |
 | `bert-sentiment-classification.ipynb` | Original training notebook |
@@ -85,6 +85,7 @@ The notebook's fine-tuned TF-Hub BERT weights lived in a GCS bucket and were nev
 ```bash
 pip install -r requirements-dev.txt
 pytest -q
+cd web && npm install && npm run dev   # React dev server on :5173, proxies /api to :8000
 ```
 
 CI (GitHub Actions) runs the tests and then `docker compose build` on every PR.
