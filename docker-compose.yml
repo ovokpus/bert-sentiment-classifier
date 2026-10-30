@@ -1,0 +1,16 @@
+services:
+  api:
+    build:
+      context: ./api
+      args:
+        MODEL_NAME: ${MODEL_NAME:-distilbert-base-uncased-finetuned-sst-2-english}
+    env_file: .env
+    ports:
+      - "${API_PORT:-8000}:8000"
+  web:
+    build: ./web
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
