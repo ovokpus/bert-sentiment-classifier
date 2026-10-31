@@ -10,6 +10,10 @@ This repo started as a Vertex AI notebook that fine-tuned a TF-Hub BERT model an
 
 ---
 
+## Business case
+
+Teams that collect thousands of short reviews need a sentiment label on each one, ideally without sending every review to a third party. This repo serves a public DistilBERT sentiment model from a FastAPI service and a small web page, so scoring runs on your own hardware. It suits a first pass that tells people which reviews to read, and it should be tested on your own data first. [docs/BUSINESS_CASE.md](docs/BUSINESS_CASE.md) covers the buyers, use cases, an illustrative ROI model and the model's known biases.
+
 ## Quick start
 
 ```bash
