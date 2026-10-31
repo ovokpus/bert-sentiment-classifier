@@ -1,5 +1,7 @@
 # 🎬 BERT Sentiment Classifier
 
+<p align="center"><img src="docs/assets/hero.svg" alt="BERT Sentiment Classifier" width="100%"/></p>
+
 **Score movie reviews as positive or negative with a BERT model, running on your laptop with a single command.**
 
 This repo started as a Vertex AI notebook that fine-tuned a TF-Hub BERT model and deployed it to a managed endpoint. It now also ships a **local app**: a FastAPI inference service and a React (Vite + TypeScript) app served by nginx, both started with `docker compose up`.
@@ -51,6 +53,8 @@ curl -X POST localhost:8000/predict -H 'content-type: application/json' \
 ![Try it out in Swagger](docs/screenshots/api-predict.png)
 
 ## Architecture
+
+<p align="center"><img src="docs/assets/flow.svg" alt="BERT Sentiment Classifier data flow" width="100%"/></p>
 
 ```mermaid
 flowchart LR
